@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 String kAppName = "Flickzone";
-String kAppUrl = "apiv1.flikzone.com:4000";
-String twilioSID = "AC77e0042bdbe399eecec9adde871463d3";
-String twilioToken = "b4f009a1e5911c34945f3914e97cfd39";
-String twilioNumber = "+16067555554";
+String kAppUrl = "";
+String twilioSID = "";
+String twilioToken = "";
+String twilioNumber = "+";
 String otpMessage = "Your OTP To Login is : ";
 String kDefaultPic =
     "https://image.flaticon.com/icons/png/512/3237/3237472.png";
