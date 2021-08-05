@@ -1,0 +1,108 @@
+name: flickzone
+description: A new Flutter application.
+
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.12.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.2
+  flutter_story_list: ^1.0.4
+  font_awesome_flutter: ^9.1.0
+  outline_search_bar: ^2.2.0
+  badges: ^2.0.1
+  line_icons: ^2.0.1
+  waterfall_flow: ^3.0.1
+  video_player: ^2.1.6
+  stacked_services: ^0.8.6
+  get_it: ^7.1.3
+  stacked: ^2.1.7
+  cached_network_image: ^3.0.0
+  firebase_core : ^1.2.0
+  cloud_firestore: ^2.2.0
+  simple_gesture_detector: ^0.2.0
+  velocity_x: ^3.2.0
+  shared_preferences: ^2.0.6
+  flutter_launcher_icons: ^0.9.1
+  splash_screen_view: ^3.0.0
+  twilio_flutter: ^0.0.9
+  hive: ^2.0.4
+  hive_flutter: ^1.1.0
+  dio: ^4.0.0
+  firebase_database:
+  http: ^0.13.3
+  path_provider:
+  video_editor_sdk: ^2.0.0
+  dart_date: ^1.1.0
+#  rwa_deep_ar:
+#    git:
+#      url : https://github.com/ujjwalsittu/rwa_deep_ar.git
+#  video_editor_sdk: ^2.0.0
+
+#  json_annotation:
+
+#  firebase_core: ^1.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  firebase_core_platform_interface: ^4.0.1
+#  json_serializable:
+#  build_runner:
+
+
+  flutter_lints: ^1.0.0
+
+flutter_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/images/icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+     - assets/images/
+     - assets/icons/
+     - assets/
+  fonts:
+    - family:  TikTokIcons
+      fonts:
+        - asset: assets/fonts/TikTokIcons.ttf
+
+ # SPLASHSCREEN CODE STARTS HERE
+splash_screen_view:
+  # Use color to set the background of your splash screen to a solid color.
+  # Use background_image to set the background of your splash screen to a png image.
+  # This is useful for gradients. The image will be stretch to the  size of the app.
+  # Only one parameter can be used, color and background_image cannot both be set.
+
+  color: "#ffffff"
+  #background_image: "assets/splashscreen_image.png"
+
+  # Optional parameters are listed below.
+  image: assets/images/icon.png
+
+  #color_dark: "#042a49"
+  #background_image_dark: "assets/dark-background.png"
+  #image_dark: assets/splash-invert.png
+
+  #android: false
+  #ios: false
+  #web: false
+
+  android_gravity: center
+  ios_content_mode: center
+  web_image_mode: center
+
+  fullscreen: true
+
+  #info_plist_files:
+  #  - 'ios/Runner/Info-Debug.plist'
+  #  - 'ios/Runner/Info-Release.plist'
