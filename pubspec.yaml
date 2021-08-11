@@ -41,6 +41,29 @@ dependencies:
   path_provider:
   video_editor_sdk: ^2.0.0
   dart_date: ^1.1.0
+  collapsible: ^1.0.0
+  pull_to_refresh: ^2.0.0
+  mvc_pattern: ^7.4.0
+  device_info: ^2.0.2
+  camera: ^0.8.1+7
+  gradient_widgets: ^0.6.0
+  modal_progress_hud: ^0.1.3
+  flutter_svg: ^0.22.0
+  percent_indicator: ^3.0.1
+  video_trimmer: ^0.5.4
+  assets_audio_player: ^3.0.3+6
+  image_picker: ^0.8.3+1
+  rflutter_alert: ^2.0.4
+  sliding_up_panel: ^2.0.0+1
+  fab_circular_menu: ^1.0.2
+  get: ^4.3.4
+  flick_video_player: ^0.3.1
+  flutter_video_newfeed: ^1.0.0+2
+  avatar_glow: ^2.0.1
+  getwidget: ^2.0.3
+  tiktoklikescroller: ^0.1.6
+  bottom_sheet: ^1.0.1
+  visibility_detector: ^0.2.0
 #  rwa_deep_ar:
 #    git:
 #      url : https://github.com/ujjwalsittu/rwa_deep_ar.git

@@ -1,7 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flickzone/constants.dart';
 import 'package:flickzone/data/video.dart';
+import 'package:flickzone/models/ShortVideo.dart';
 import 'package:flickzone/screens/feed_viewmodel.dart';
 import 'package:flickzone/screens/homescreen.dart';
+import 'package:flickzone/widgets/ShortVideoWebServices.dart';
 import 'package:flickzone/widgets/actions_toolbar.dart';
 import 'package:flickzone/widgets/bottom_bar.dart';
 import 'package:flickzone/widgets/video_description.dart';
@@ -21,12 +24,27 @@ class FeedScreen extends StatefulWidget {
 class _FeedScreenState extends State<FeedScreen> {
   final locator = GetIt.instance;
   final feedViewModel = GetIt.instance<FeedViewModel>();
+  bool isLoading = true;
+  List<ShortVideo>? _shortVideos = <ShortVideo>[];
+
   @override
   void initState() {
     feedViewModel.loadVideo(0);
     feedViewModel.loadVideo(1);
+    _loadShortVideo();
 
     super.initState();
+  }
+
+  void _loadShortVideo() async {
+    final resp = await ShortVideoWebService().loadAllLV();
+    if (resp.length != 0) {
+      setState(() {
+        _shortVideos = resp;
+        isLoading = false;
+        print(_shortVideos?.length);
+      });
+    }
   }
 
   @override
@@ -45,7 +63,7 @@ class _FeedScreenState extends State<FeedScreen> {
       body: Stack(
         children: [
           PageView.builder(
-            itemCount: 2,
+            itemCount: _shortVideos!.length,
             onPageChanged: (value) {
               print(value);
               if (value == 1)
@@ -450,15 +468,15 @@ class _FeedScreenState extends State<FeedScreen> {
             initialPage: 0,
             viewportFraction: 1,
           ),
-          itemCount: feedViewModel.videoSource?.listVideos.length,
+          itemCount: _shortVideos!.length,
           onPageChanged: (index) {
-            index = index % (feedViewModel.videoSource!.listVideos.length);
+            index = index % (_shortVideos!.length);
             feedViewModel.changeVideo(index);
           },
           scrollDirection: Axis.vertical,
           itemBuilder: (context, index) {
-            index = index % (feedViewModel.videoSource!.listVideos.length);
-            return videoCard(feedViewModel.videoSource!.listVideos[index]);
+            index = index % (_shortVideos!.length);
+            return videoCard(_shortVideos![index]);
           },
         ),
         SafeArea(
@@ -511,7 +529,7 @@ class _FeedScreenState extends State<FeedScreen> {
   //   }
   // }
 
-  Widget videoCard(Video video) {
+  Widget videoCard(ShortVideo video) {
     return Stack(
       children: [
         video.controller != null
@@ -539,20 +557,25 @@ class _FeedScreenState extends State<FeedScreen> {
                   child: Text("Loading"),
                 ),
               ),
-        Column(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            Row(
-              mainAxisSize: MainAxisSize.max,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: <Widget>[
-                VideoDescription(video.user, video.videoTitle, video.songName),
-                ActionsToolbar(video.likes, video.comments,
-                    "https://www.andersonsobelcosmetic.com/wp-content/uploads/2018/09/chin-implant-vs-fillers-best-for-improving-profile-bellevue-washington-chin-surgery.jpg"),
-              ],
-            ),
-            SizedBox(height: 20)
-          ],
+        Expanded(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Row(
+                mainAxisSize: MainAxisSize.max,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: <Widget>[
+                  VideoDescription(video.userId.toString(), video.descrition,
+                      video.category),
+                  ActionsToolbar(
+                      video.noOfLikes.toString(),
+                      video.noOfComment.toString(),
+                      kImageUrl + video.thumbnailUrl),
+                ],
+              ),
+              SizedBox(height: 20)
+            ],
+          ),
         ),
       ],
     );

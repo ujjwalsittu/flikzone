@@ -1,4 +1,29 @@
-class LongVideo {
+import 'package:video_player/video_player.dart';
+
+class TiktokTik {
+  int? statusCode;
+  late ShortVideo body;
+
+  TiktokTik({required this.statusCode, required this.body});
+
+  TiktokTik.fromJson(Map<String, dynamic> json) {
+    statusCode = json['statusCode'];
+    body =
+        (json['data'] != null ? new ShortVideo.fromJson(json['data']) : null)!;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['statusCode'] = this.statusCode;
+    if (this.body != null) {
+      data['body'] = this.body.toJson();
+    }
+
+    return data;
+  }
+}
+
+class ShortVideo {
   int canCommnet;
   String category;
   String createdOn;
@@ -19,7 +44,9 @@ class LongVideo {
   int userId;
   String videoUrl;
 
-  LongVideo(
+  VideoPlayerController? controller;
+
+  ShortVideo(
       {required this.canCommnet,
       required this.category,
       required this.createdOn,
@@ -40,8 +67,8 @@ class LongVideo {
       required this.userId,
       required this.videoUrl});
 
-  factory LongVideo.fromJson(Map<String, dynamic> json) {
-    return LongVideo(
+  factory ShortVideo.fromJson(Map<String, dynamic> json) {
+    return ShortVideo(
       canCommnet: json['canCommnet'],
       category: json['category'],
       createdOn: json['createdOn'],
@@ -86,5 +113,11 @@ class LongVideo {
     data['userId'] = this.userId;
     data['videoUrl'] = this.videoUrl;
     return data;
+  }
+
+  Future<Null> loadController() async {
+    controller = VideoPlayerController.network(videoUrl);
+    await controller?.initialize();
+    controller?.setLooping(true);
   }
 }

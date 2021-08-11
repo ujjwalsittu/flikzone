@@ -8,11 +8,12 @@
 import 'dart:convert';
 
 import 'package:flickzone/models/postModel.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
-class PostWebServices {
+class PostWebServices extends ChangeNotifier {
   Future<List<PostModel>> loadPosts(int userid) async {
-    var url = Uri.http("15.207.105.12:4000", 'post/user/$userid');
+    var url = Uri.http("15.207.105.12:4040", 'post/user/$userid');
     print(url);
     final response = await http.get(url);
     print(url);

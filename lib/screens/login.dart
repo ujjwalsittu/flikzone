@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flickzone/constants.dart';
+import 'package:flickzone/screens/homescreen.dart';
 import 'package:flickzone/widgets/login/VerticalText.dart';
 import 'package:flickzone/widgets/login/textlogin.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TwilioFlutter? twilioFlutter;
-  Response? response;
+  bool showLoader = false;
   Box<dynamic>? box;
   var dio = Dio();
 
@@ -37,49 +38,42 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> login(dynamic number) async {
-    String num = number;
+    String num = number.toString();
 
-    // var formData = FormData.fromMap({'phoneNo': num, 'otpVerified': 1});
-    response = await dio.post(
-      'https://apiv1.flikzone.com:4000/user/signup',
-      data: {'phoneNo': num, 'otpVerified': 1},
-    );
+    var formData = FormData.fromMap({'phoneNo': num, 'otpVerified': 1});
+    try {
+      var response = await dio.post('http://15.207.105.12:4040/user/signup',
+          data: formData);
 
-    dynamic result = jsonDecode(response!.data);
-    print(result);
-    if (result.statusCode == 200 && result["success"] == true) {
-      print("working");
+      final result = response.data;
+      // String results = jsonDecode(result);
+      print(result);
+      if (response.statusCode == 200 && result["success"] == true) {
+        var future = box?.putAll({
+          'token': result["token"],
+          'userid': result["data"][0]["id"],
+          'fullname': result["data"][0]["fullName"],
+          'username': result["data"][0]["username"],
+          'profilepic': result["data"][0]["profilepic"],
+          'islogged': true,
+        });
 
-      var future = box?.putAll({
-        'token': result["token"],
-        'userid': result["data"][0]["id"],
-        'fullname': result["data"][0]["fullName"],
-        'username': result["data"][0]["username"],
-        'profilepic': result["data"][0]["profilepic"],
-        'islogged': true,
+        print(box?.get("token"));
+        print(box?.get("userid"));
+        print(box?.get("fullname"));
+        print(box?.get("phoneNo"));
+        print(box?.get("username"));
+        print(box?.get("token"));
+        Navigator.pushNamed(context, kHomeRoute);
+      }
+    } on DioError catch (e) {
+      setState(() {
+        showLoader = false;
       });
-      // box.put('token', result["token"]);
-      // box.put('userid', result["data"][0]["id"]);
-      // box.put('fullname', result["data"][0]["fullname"]);
-      // box.put('phoneNo', result["data"][0]["phoneNo"]);
-      // box.put('username', result["data"][0]["username"]);
-      // box.put('userid', result["data"][0]["id"]);
-      // box.put('userid', result["data"][0]["id"]);
-      // box.put('userid', result["data"][0]["id"]);
-
-      print(box?.get("token"));
-      print(box?.get("userid"));
-      print(box?.get("fullname"));
-      print(box?.get("phoneNo"));
-      print(box?.get("username"));
-      // box.get("token");
-
+      VxToast.show(context,
+          msg: "Error While Logging In With MSG : ${e.response!.data["msg"]}");
+      print(e.response!.statusCode);
     }
-    // print(response?.statusCode);
-    print(result["data"][0]["id"]);
-    print(result["token"]);
-    print(result);
-    print(box?.get("islogged"));
   }
 
   late dynamic phoneNumber;
@@ -134,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                       onChanged: (value) {
                         setState(() {
                           phoneNumber = "+91" + value;
-                          // print(phoneNumber);
+                          print(phoneNumber);
                         });
                       },
                     ),
@@ -147,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                     int? otp = box?.get('otp');
                     print(otp);
                     String msg = "$otpMessage  $otp -  Flikzone";
-                    // sendOTP(phoneNumber, msg);
+                    sendOTP(phoneNumber, msg);
                     VxToast.show(context,
                         msg: "OTP Sent, wait for 1 minute before retry $otp",
                         position: VxToastPosition.center,
@@ -216,18 +210,24 @@ class _LoginPageState extends State<LoginPage> {
                     child: TextButton(
                       onPressed: () async {
                         // var box = await Hive.openBox('OTP');
+                        if (showLoader == true) CircularProgressIndicator();
+
                         int temp = box?.get('otp');
                         if (temp.toString() == enteredOTP &&
                             phoneNumber != null) {
                           phoneNumber = phoneNumber.toString().substring(3, 13);
+                          print(phoneNumber);
 
                           await login(phoneNumber);
-                          VxToast.show(context, msg: phoneNumber);
+                          // VxToast.show(context, msg: phoneNumber);
                         } else {
                           VxToast.show(context,
                               msg: "You have entered an incorrect OTP .",
                               position: VxToastPosition.center,
                               showTime: 2250);
+                          setState(() {
+                            showLoader = false;
+                          });
                         }
                         // box.close();
                       },
@@ -235,7 +235,7 @@ class _LoginPageState extends State<LoginPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
                           Text(
-                            'OK',
+                            'Login',
                             style: TextStyle(
                               color: Colors.lightBlueAccent,
                               fontSize: 14,

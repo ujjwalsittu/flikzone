@@ -3,10 +3,12 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flickzone/screens/LongVideoScreen.dart';
+import 'package:flickzone/screens/ShortFlick.dart';
 import 'package:flickzone/screens/feed_screen.dart';
 import 'package:flickzone/screens/homescreen.dart';
 import 'package:flickzone/screens/login.dart';
-import 'package:flickzone/screens/longVideo.dart';
+import 'package:flickzone/screens/SingleLongVideo.dart';
 import 'package:flickzone/screens/messages.dart';
 import 'package:flickzone/screens/notifications.dart';
 import 'package:flickzone/screens/profile.dart';
@@ -62,14 +64,14 @@ class MyApp extends StatelessWidget {
       routes: {
         "/first": (context) => FirstTab(),
         "/": (context) => SplashScreen(),
-        "/short": (context) => FeedScreen(),
+        "/short": (context) => ShortFlik(),
         kOtherProfile: (context) => OtherProfile(),
-        kLongVideo: (context) => LongVideo(),
+        kVideoScreen: (context) => LongVideoScreen(),
         kMessage: (context) => MessageScreen(),
         kHomeRoute: (context) => HomeScreen(),
         kSearchPage: (context) => SearchPage(),
-        kNotificationRoute: (context) => const Notifications(),
-        kProfileScreen: (context) => const ProfileScreen(),
+        kNotificationRoute: (context) => Notifications(),
+        kProfileScreen: (context) => ProfileScreen(),
       },
     );
   }

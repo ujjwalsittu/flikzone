@@ -1,17 +1,27 @@
 import 'package:flutter/cupertino.dart';
 
 class NotificationModel {
-  String name;
-  String faceUrl;
-  String message;
-
-  String time;
-  IconData? icon;
+  int userId;
+  String content;
+  int notificationType;
+  String createdOn;
 
   NotificationModel(
-      {required this.name,
-      required this.faceUrl,
-      required this.message,
-      required this.time,
-      this.icon});
+      {required this.userId,
+      required this.content,
+      required this.notificationType,
+      required this.createdOn});
+
+  NotificationModel.fromJson(Map<String, dynamic> json)
+      : userId = json['userId'],
+        content = json['content'],
+        notificationType = json['notificationType'],
+        createdOn = json['createdOn'];
+
+  Map<String, dynamic> toJson() => {
+        'userId': userId,
+        'content': content,
+        'notificationType': notificationType,
+        'createdOn': createdOn,
+      };
 }

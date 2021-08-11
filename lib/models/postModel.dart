@@ -1,8 +1,12 @@
+import 'package:video_player/video_player.dart';
+
 class PostModel {
   String? username;
+  int? id;
   int? userid;
   String? profilepic;
   int? noOfLikes;
+  int? isLiked;
   String? postContent;
   String? postImage;
   int? hasImage;
@@ -11,9 +15,11 @@ class PostModel {
 
   PostModel(
       this.username,
+      this.id,
       this.userid,
       this.profilepic,
       this.noOfLikes,
+      this.isLiked,
       this.postContent,
       this.postImage,
       this.hasImage,
@@ -21,25 +27,27 @@ class PostModel {
       this.createdOn);
 
   PostModel.fromJson(Map<String, dynamic> json)
-      : username = json['username'],
+      : username = json['fullName'],
+        id = json['id'],
         userid = json['userid'],
         profilepic = json['profilepic'],
-        noOfLikes = json['noOfLikes'],
+        noOfLikes = json['totalLike'],
+        isLiked = json['isLike'],
         postContent = json['postContent'],
         postImage = json['postImage'],
         hasImage = json['hasImage'],
-        noOfComment = json['noOfComment'],
+        noOfComment = json['totalComment'],
         createdOn = json['createdOn'];
 
   Map<String, dynamic> toJson() => {
         'username': username,
         'userid': userid,
         'profilepic': profilepic,
-        'noOfLikes': noOfLikes,
+        'totalLike': noOfLikes,
         'postContent': postContent,
         'postImage': postImage,
         'hasImage': hasImage,
-        'noOfComment': noOfComment,
+        'totalComment': noOfComment,
         'createdOn': createdOn,
       };
 }

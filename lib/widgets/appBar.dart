@@ -6,7 +6,9 @@
  *
  */
 
+import 'package:flickzone/screens/LongVideoScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 AppBar buildAppBar() {
   return AppBar(
@@ -28,10 +30,10 @@ AppBar buildAppBar() {
         'assets/icons/video.png',
         scale: 5.5,
       ),
-      Image.asset(
-        'assets/icons/message.png',
-        scale: 5.5,
-      ),
+      // Image.asset(
+      //   'assets/icons/message.png',
+      //   scale: 5.5,
+      // ),
     ],
   );
 }

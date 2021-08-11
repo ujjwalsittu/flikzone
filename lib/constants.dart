@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 String kAppName = "Flickzone";
-String kAppUrl = "";
-String twilioSID = "";
-String twilioToken = "";
-String twilioNumber = "+";
+String kAppUrl = "http://15.207.105.12:4040";
+String kImageUrl = "https://apiv1.flikzone.com/";
+String twilioSID = "AC77e0042bdbe399eecec9adde871463d3";
+String twilioToken = "0b4ff661f21b372c4ba3d2f9b2f6cde3";
+String twilioNumber = "+16067555554";
 String otpMessage = "Your OTP To Login is : ";
-String kDefaultPic =
-    "https://image.flaticon.com/icons/png/512/3237/3237472.png";
+String kDefaultPic = "https://cdn.club42.online/upload/photos/d-page.jpg";
 
 const kImageUrls = [
   "https://images.unsplash.com/photo-1623449658404-c506199c340d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=401&q=80",
@@ -46,78 +46,78 @@ const kQuarantineImg = [
   "https://images.unsplash.com/photo-1594982734080-a79967e10c50?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=375&q=80",
 ];
 
-List<NotificationModel> kNotifications = [
-  NotificationModel(
-      name: "Harry",
-      faceUrl:
-          "https://images.unsplash.com/photo-1571224736343-7182962ae3e7?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
-      time: "2h",
-      icon: FontAwesomeIcons.plus,
-      message: "You have a new follower"),
-  NotificationModel(
-      name: "Meg",
-      faceUrl:
-          "https://images.unsplash.com/photo-1604874156629-5c6c3b3bded7?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-      time: "3h",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Video"),
-  NotificationModel(
-      name: "Filipp",
-      faceUrl:
-          "https://images.unsplash.com/photo-1616162964877-ffdfcd7d0a1a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
-      time: "18h",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Videp"),
-  NotificationModel(
-      name: "Den",
-      faceUrl:
-          "https://images.unsplash.com/photo-1623113588779-fb2e1191aeaf?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
-      time: "24h",
-      icon: FontAwesomeIcons.plus,
-      message: "You have a new follower"),
-  NotificationModel(
-      name: "Joecalih",
-      faceUrl:
-          "https://images.unsplash.com/photo-1623135679170-27936642b80e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
-      time: "24h",
-      icon: FontAwesomeIcons.plus,
-      message: "You have a new follower"),
-  NotificationModel(
-      name: "Felipe",
-      faceUrl:
-          "https://images.unsplash.com/photo-1582418701181-fb023bad8b4d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=358&q=80",
-      time: "24h",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Video"),
-  NotificationModel(
-      name: "Alexis",
-      faceUrl:
-          "https://images.unsplash.com/photo-1512849934327-1cf5bf8a5ccc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
-      time: "1 Day",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Video"),
-  NotificationModel(
-      name: "Abdulla",
-      faceUrl:
-          "https://images.unsplash.com/photo-1623153611623-6b8a4bc4fb69?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=889&q=80",
-      time: "1day 2h",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Video"),
-  NotificationModel(
-      name: "Sammy",
-      faceUrl:
-          "https://images.unsplash.com/photo-1623038455007-891466ff6016?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
-      time: "2day",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Video"),
-  NotificationModel(
-      name: "Jade",
-      faceUrl:
-          "https://images.unsplash.com/photo-1623038455007-891466ff6016?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
-      time: "3day",
-      icon: FontAwesomeIcons.star,
-      message: "Liked Your Video"),
-];
+// List<NotificationModel> kNotifications = [
+//   NotificationModel(
+//       name: "Harry",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1571224736343-7182962ae3e7?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
+//       time: "2h",
+//       icon: FontAwesomeIcons.plus,
+//       message: "You have a new follower"),
+//   NotificationModel(
+//       name: "Meg",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1604874156629-5c6c3b3bded7?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
+//       time: "3h",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Video"),
+//   NotificationModel(
+//       name: "Filipp",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1616162964877-ffdfcd7d0a1a?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=750&q=80",
+//       time: "18h",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Videp"),
+//   NotificationModel(
+//       name: "Den",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1623113588779-fb2e1191aeaf?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
+//       time: "24h",
+//       icon: FontAwesomeIcons.plus,
+//       message: "You have a new follower"),
+//   NotificationModel(
+//       name: "Joecalih",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1623135679170-27936642b80e?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
+//       time: "24h",
+//       icon: FontAwesomeIcons.plus,
+//       message: "You have a new follower"),
+//   NotificationModel(
+//       name: "Felipe",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1582418701181-fb023bad8b4d?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=358&q=80",
+//       time: "24h",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Video"),
+//   NotificationModel(
+//       name: "Alexis",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1512849934327-1cf5bf8a5ccc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=334&q=80",
+//       time: "1 Day",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Video"),
+//   NotificationModel(
+//       name: "Abdulla",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1623153611623-6b8a4bc4fb69?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=889&q=80",
+//       time: "1day 2h",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Video"),
+//   NotificationModel(
+//       name: "Sammy",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1623038455007-891466ff6016?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
+//       time: "2day",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Video"),
+//   NotificationModel(
+//       name: "Jade",
+//       faceUrl:
+//           "https://images.unsplash.com/photo-1623038455007-891466ff6016?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=333&q=80",
+//       time: "3day",
+//       icon: FontAwesomeIcons.star,
+//       message: "Liked Your Video"),
+// ];
 
 const kTaImageUrl = {
   'http://lorempixel.com/200/200/food/1',

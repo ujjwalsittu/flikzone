@@ -11,8 +11,6 @@ class BottomBar extends StatelessWidget {
   static const double NavigationIconSize = 20.0;
   static const double CreateButtonWidth = 38.0;
 
-  const BottomBar({Key? key}) : super(key: key);
-
   Widget get customCreateIcon => Container(
       width: 45.0,
       height: 27.0,

@@ -1,7 +1,18 @@
 import 'package:flickzone/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
-class Stories extends StatelessWidget {
+class Stories extends StatefulWidget {
+  @override
+  State<Stories> createState() => _StoriesState();
+}
+
+class _StoriesState extends State<Stories> {
+  void loadStories() {
+    var box = Hive.box('OTP');
+    int userid = box.get('userid');
+  }
+
   final topText = Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: <Widget>[
@@ -9,7 +20,7 @@ class Stories extends StatelessWidget {
         "Stories",
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
-      new Row(
+      Row(
         children: <Widget>[
           new Icon(Icons.play_arrow),
           new Text("Watch All", style: TextStyle(fontWeight: FontWeight.bold))
@@ -20,7 +31,7 @@ class Stories extends StatelessWidget {
 
   final stories = Expanded(
     child: new Padding(
-      padding: const EdgeInsets.only(top: 5.0),
+      padding: const EdgeInsets.only(top: 3.0),
       child: new ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: 8,
@@ -33,8 +44,10 @@ class Stories extends StatelessWidget {
               decoration: new BoxDecoration(
                 shape: BoxShape.circle,
                 image: new DecorationImage(
-                    fit: BoxFit.fill,
-                    image: new NetworkImage(kDefaultPic)), // Stories Faces
+                  fit: BoxFit.fill,
+                  image: NetworkImage(
+                      "https://cdn.club42.online/upload/photos/d-page.jpg"),
+                ), // Stories Faces
               ),
               margin: const EdgeInsets.symmetric(horizontal: 8.0),
             ),

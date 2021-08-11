@@ -9,8 +9,6 @@ import 'package:velocity_x/velocity_x.dart';
 String kOtherProfile = "/kOtherProfile";
 
 class OtherProfile extends StatefulWidget {
-  const OtherProfile({Key? key}) : super(key: key);
-
   @override
   State<OtherProfile> createState() => _OtherProfileState();
 }

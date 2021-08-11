@@ -22,11 +22,10 @@ class MessageScreen extends StatelessWidget {
                 backgroundColor: Vx.gray200,
                 child: ListTile(
                   leading: CircleAvatar(
-                    backgroundImage:
-                        NetworkImage(kNotifications[index].faceUrl),
+                    backgroundImage: NetworkImage(kDefaultPic),
                   ),
                   title: Text(
-                    kNotifications[index].name,
+                    "Rohan",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: "Some Messages Here .......".text.xl.make(),
