@@ -1,11 +1,12 @@
 import 'dart:convert';
 
+import 'package:flickzone/constants.dart';
 import 'package:flickzone/models/notificationsModel.dart';
 import 'package:http/http.dart' as http;
 
 class LoadNotifications {
   Future<List<NotificationModel>> loadPosts(int userid) async {
-    var url = Uri.http("15.207.105.12:4040", 'notification/user/$userid');
+    var url = Uri.http(kAppUrlHalf, 'notification/user/$userid');
     print(url);
     final response = await http.get(url);
     print(url);

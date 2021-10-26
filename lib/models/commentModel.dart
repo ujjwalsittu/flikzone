@@ -2,6 +2,7 @@ class CommentModel {
   String content;
   String createdOn;
   int dislikes;
+  String fullName;
   int hasReply;
   int id;
   int likes;
@@ -10,11 +11,16 @@ class CommentModel {
   int status;
   String updatedOn;
   int userId;
+  String userPic;
+  String username;
+  int videoId;
+  int maxReply;
 
   CommentModel(
       {required this.content,
       required this.createdOn,
       required this.dislikes,
+      required this.fullName,
       required this.hasReply,
       required this.id,
       required this.likes,
@@ -22,13 +28,18 @@ class CommentModel {
       required this.replyId,
       required this.status,
       required this.updatedOn,
-      required this.userId});
+      required this.userId,
+      required this.userPic,
+      required this.username,
+      required this.videoId,
+      required this.maxReply});
 
   factory CommentModel.fromJson(Map<String, dynamic> json) {
     return CommentModel(
       content: json['content'],
       createdOn: json['createdOn'],
       dislikes: json['dislikes'],
+      fullName: json['fullName'],
       hasReply: json['hasReply'],
       id: json['id'],
       likes: json['likes'],
@@ -37,6 +48,10 @@ class CommentModel {
       status: json['status'],
       updatedOn: json['updatedOn'],
       userId: json['userId'],
+      userPic: json['userPic'],
+      username: json['username'],
+      videoId: json['videoId'],
+      maxReply: json['maxReply'],
     );
   }
 
@@ -45,6 +60,7 @@ class CommentModel {
     data['content'] = this.content;
     data['createdOn'] = this.createdOn;
     data['dislikes'] = this.dislikes;
+    data['fullName'] = this.fullName;
     data['hasReply'] = this.hasReply;
     data['id'] = this.id;
     data['likes'] = this.likes;
@@ -53,6 +69,10 @@ class CommentModel {
     data['status'] = this.status;
     data['updatedOn'] = this.updatedOn;
     data['userId'] = this.userId;
+    data['userPic'] = this.userPic;
+    data['username'] = this.username;
+    data['videoId'] = this.videoId;
+    data['maxReply'] = this.maxReply;
     return data;
   }
 }

@@ -1,15 +1,26 @@
 import 'dart:convert';
 
 import 'package:flickzone/constants.dart';
+import 'package:flickzone/models/ShortVideo.dart';
+import 'package:flickzone/models/postModel.dart';
+import 'package:flickzone/screens/SingleLongVideo.dart';
+import 'package:flickzone/screens/SinglePostScreen.dart';
+import 'package:flickzone/screens/homescreen.dart';
+import 'package:flickzone/screens/notifications.dart';
+import 'package:flickzone/screens/search.dart';
 import 'package:flickzone/widgets/LongVideoWebService.dart';
+import 'package:flickzone/widgets/ShortVideoWebServices.dart';
 import 'package:flickzone/widgets/navbar.dart';
+import 'package:flickzone/widgets/postWebServ.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flickzone/models/LongVideos.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:http/http.dart' as http;
+// import 'package:quds_ui_kit/quds_ui_kit.dart';
 
 String kProfileScreen = "/profile";
 
@@ -20,7 +31,11 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   bool noLV = true;
-  List<LongVideo>? _longVideo = <LongVideo>[];
+  bool noPost = true;
+  bool noSV = true;
+  List<LongVideoByUID>? _longVideo = <LongVideoByUID>[];
+  List<PostOfUser>? _allPosts = <PostOfUser>[];
+  List<ShortVideo>? _allShortVideo = <ShortVideo>[];
   @override
   void initState() {
     // TODO: implement initState
@@ -32,7 +47,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void _loadLV() async {
     var box = Hive.box('OTP');
     int userid = box.get('userid');
-    final lvResults = await LongVideoWebService().loadLV(50);
+    final lvResults = await LongVideoWebService().loadLVByUId(userid);
+    final postResults = await PostWebServices().loadUserPost(userid);
+    final shortResults = await ShortVideoWebService().loadLV(userid);
     print(lvResults.length);
     if (lvResults.isNotEmpty) {
       setState(() {
@@ -42,22 +59,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
         print("ENTERED THIS BLOCK");
       });
     }
+    if (postResults.isNotEmpty) {
+      setState(() {
+        noPost = false;
+        _allPosts = postResults;
+      });
+    }
+    if (shortResults.isNotEmpty) {
+      setState(() {
+        noSV = false;
+        _allShortVideo = shortResults;
+      });
+    }
   }
 
   int selectedTab = 0;
   late String resp;
+  int uid = 0;
   String fullName = "Full Name";
   String profilePic = kDefaultPic;
   String username = "Username";
   int noOfPost = 0;
   int totalFollowers = 0;
   int totalpost = 0;
+  int verified = 0;
   int totalVideos = 0;
   late dynamic profileResp;
   var box = Hive.box('OTP');
   void profileDetails() async {
     int userid = box.get("userid");
-    var url = Uri.http("15.207.105.12:4040", 'user/$userid');
+    uid = userid;
+    var url = Uri.http(kAppUrlHalf, 'user/$userid');
     var response = await http.get(url);
     profileResp = jsonDecode(response.body);
     setState(() {
@@ -69,31 +101,96 @@ class _ProfileScreenState extends State<ProfileScreen> {
           profileResp['data'][0]['noOfPost'];
       totalVideos = profileResp['data'][0]['noOfLongVideo'] +
           profileResp['data'][0]['noOfLongShort'];
+      verified = profileResp['data'][0]['verificationStatus'];
       // print(noOfPost);
       totalFollowers = profileResp['data'][0]['totalFollowers'];
     });
   }
 
+  // List<QudsPopupMenuBase> getMenuItems() {
+  //   return [
+  //     QudsPopupMenuSection(
+  //         backgroundColor: Colors.white,
+  //         titleText: fullName,
+  //         subTitle: Text('Profile Options Here'),
+  //         leading: Icon(
+  //           Icons.account_box_outlined,
+  //           size: 40,
+  //         ),
+  //         subItems: [
+  //           QudsPopupMenuItem(
+  //               leading: Icon(Icons.logout),
+  //               title: Text('Update Profile'),
+  //               onPressed: () {
+  //                 Navigator.pushNamed(context, "/updateProfile");
+  //               }),
+  //           QudsPopupMenuItem(
+  //               leading: Icon(Icons.logout),
+  //               title: Text('Logout'),
+  //               onPressed: () {
+  //                 // showToast('Logout Pressed!');
+  //               })
+  //         ])
+  //   ];
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: GFDrawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            GFDrawerHeader(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      colors: [Colors.grey, Colors.black54],
+                      tileMode: TileMode.mirror)),
+              currentAccountPicture: GFAvatar(
+                radius: 80.0,
+                backgroundImage: NetworkImage(profilePic),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(fullName),
+                  Text(username),
+                ],
+              ),
+            ),
+            ListTile(
+              leading: Icon(Icons.supervised_user_circle_outlined),
+              title: Text('Update Profile'),
+              onTap: () {
+                Navigator.popAndPushNamed(context, '/updateProfile');
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.verified_user),
+              title: Text('Request Verification'),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Logout'),
+              onTap: () {},
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
-        backgroundColor: Vx.gray300,
-        title: fullName.text.gray700.make(),
-        iconTheme: IconThemeData(color: Vx.black),
-        actionsIconTheme: IconThemeData(color: Vx.black),
+        backgroundColor: Colors.grey,
+        title: fullName.text.white.make(),
+        iconTheme: IconThemeData(color: Vx.white),
+        actionsIconTheme: IconThemeData(color: Vx.white),
         centerTitle: true,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(3.0),
-            child: GestureDetector(
-                onTap: () {
-                  box.deleteFromDisk();
-                  Navigator.pushNamed(context, "/");
-                },
-                child: Center(child: FaIcon(Icons.menu_open_sharp))),
-          )
-        ],
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.of(context).pop();
+          },
+          child: Icon(Icons.arrow_back),
+        ),
       ),
       body: SingleChildScrollView(
         child: Container(
@@ -147,7 +244,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    username.text.xl2.gray500.bold.make(),
+                    Row(
+                      children: [
+                        username.text.xl2.gray500.bold.make(),
+                        SizedBox(
+                          width: 10,
+                        ),
+                        verified == 1
+                            ? Icon(
+                                Icons.verified,
+                                color: Colors.blue,
+                              )
+                            : "".text.make()
+                      ],
+                    ),
                     // "Artist".text.xl.gray400.make(),
                     "Bio Goes Here".text.xl.gray500.make()
                   ],
@@ -186,13 +296,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               ),
+              SizedBox(
+                height: 10,
+              ),
               selectedTab == 0
                   ? Container(
-                      child: noLV
+                      child: noPost
                           ? Center(
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
-                                child: Text("NO LONG VIDEO FOUND"),
+                                child: Text("NO POST FOUND"),
                               ),
                             )
                           : GridView.builder(
@@ -201,560 +314,139 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 4),
                               itemBuilder: (BuildContext ctx, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 150,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage((kImageUrl +
-                                            _longVideo![index].thumbnailUrl)),
-                                        fit: BoxFit.cover),
-                                  ),
+                                return GestureDetector(
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      new MaterialPageRoute(
+                                          builder: (_) => SinglePostScreen(
+                                              id: _allPosts![index].id,
+                                              userid: uid)),
+                                    );
+                                  },
+                                  child: _allPosts![index].postVideo == "0" &&
+                                          _allPosts![index].postImage == "0"
+                                      ? Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: CircleAvatar(
+                                            child: Text("Text Post"),
+                                          ),
+                                        )
+                                      : Padding(
+                                          padding: const EdgeInsets.all(5.0),
+                                          child: VxContinuousRectangle(
+                                            radius: 40,
+                                            height: 150,
+                                            width: 80,
+                                            backgroundImage: DecorationImage(
+                                                image: _allPosts![index]
+                                                            .postVideo ==
+                                                        "0"
+                                                    ? NetworkImage(
+                                                        (kImageUrl +
+                                                            _allPosts![index]
+                                                                .postImage),
+                                                      )
+                                                    : NetworkImage(
+                                                        (kImageUrl +
+                                                            _allPosts![index]
+                                                                .postVideo),
+                                                      ),
+                                                fit: BoxFit.cover),
+                                          ),
+                                        ),
                                 );
                               },
-                              itemCount: _longVideo!.length,
+                              itemCount: _allPosts!.length,
                             ),
                     )
                   : selectedTab == 1
-                      ? Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "98/200/300"),
-                                        fit: BoxFit.cover),
+                      ? Container(
+                          child: noSV
+                              ? Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("NO SHORT VIDEO FOUND"),
                                   ),
+                                )
+                              : GridView.builder(
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 4),
+                                  itemBuilder: (BuildContext ctx, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        //TODO : ShortVideo Screen
+                                        // Navigator.push(
+                                        //   context,
+                                        //   new MaterialPageRoute(
+                                        //       builder: (_) => SinglePostScreen(
+                                        //           id: _allShortVideo![index].id,
+                                        //           userid: uid)),
+                                        // );
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: VxContinuousRectangle(
+                                          radius: 40,
+                                          height: 150,
+                                          width: 80,
+                                          backgroundImage: DecorationImage(
+                                              image: NetworkImage((kImageUrl +
+                                                  _allShortVideo![index]
+                                                      .thumbnailUrl)),
+                                              fit: BoxFit.cover),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  itemCount: _allShortVideo!.length,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "88/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "85/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "30/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "29/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "10/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "11/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "12/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "13/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "14/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "15/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "16/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "17/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "18/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "19/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "20/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "25/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "26/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "24/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "31/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                         )
-                      : Column(
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "50/200/300"),
-                                        fit: BoxFit.cover),
+                      : Container(
+                          child: noLV
+                              ? Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: Text("NO LONG VIDEO FOUND"),
                                   ),
+                                )
+                              : GridView.builder(
+                                  shrinkWrap: true,
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                          crossAxisCount: 4),
+                                  itemBuilder: (BuildContext ctx, index) {
+                                    return GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            new MaterialPageRoute(
+                                                builder: (_) => SingleLongVideo(
+                                                      url: _longVideo![index]
+                                                          .videoUrl,
+                                                      id: _longVideo![index].id,
+                                                      userid: uid,
+                                                    )));
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(5.0),
+                                        child: VxContinuousRectangle(
+                                          radius: 40,
+                                          height: 150,
+                                          width: 80,
+                                          backgroundImage: DecorationImage(
+                                              image: NetworkImage((kImageUrl +
+                                                  _longVideo![index]
+                                                      .thumbnailUrl)),
+                                              fit: BoxFit.cover),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  itemCount: _longVideo!.length,
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "56/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "57/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "30/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "29/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "10/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "11/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "12/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "13/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "14/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "15/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "16/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "17/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "18/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "19/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "20/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "25/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "26/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "24/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(3.0),
-                                  child: VxContinuousRectangle(
-                                    radius: 40,
-                                    height: 125,
-                                    width: 80,
-                                    backgroundImage: DecorationImage(
-                                        image: NetworkImage(
-                                            imageurl + "31/200/300"),
-                                        fit: BoxFit.cover),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
                         )
             ],
           ),
@@ -768,7 +460,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
         radius: 50,
         backgroundColor: Vx.lightBlue400,
       ),
-      bottomNavigationBar: bottomBar(),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        height: 50.0,
+        alignment: Alignment.center,
+        child: new BottomAppBar(
+          child: new Row(
+            // alignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              // new IconButton(
+              //   icon: Icon(
+              //     Icons.home,
+              //   ),
+              //   onPressed: () {
+              //     Navigator.pushNamed(context, kHomeRoute);
+              //   },
+              // ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, kHomeRoute);
+                },
+                child: new Image.asset(
+                  'assets/icons/home.png',
+                  scale: 2.5,
+                ),
+              ),
+              new IconButton(
+                icon: Icon(
+                  Icons.search,
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, kSearchPage);
+                },
+              ),
+              // new IconButton(
+              //   icon: Icon(
+              //     Icons.add_box,
+              //   ),
+              //   onPressed: null,
+              // ),
+              new SizedBox(),
+              new IconButton(
+                icon: Icon(
+                  Icons.notifications,
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, kNotificationRoute);
+                },
+              ),
+              new IconButton(
+                icon: Icon(
+                  Icons.account_box,
+                ),
+                onPressed: () {
+                  // Navigator.pushNamed(context, kProfileScreen);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
     );

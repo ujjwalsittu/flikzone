@@ -1,12 +1,16 @@
-import 'package:badges/badges.dart';
+ import 'package:badges/badges.dart';
 import 'package:flickzone/constants.dart';
 import 'package:flickzone/models/notificationsModel.dart';
+import 'package:flickzone/screens/homescreen.dart';
+import 'package:flickzone/screens/profile.dart';
 import 'package:flickzone/screens/profileOther.dart';
+import 'package:flickzone/screens/search.dart';
 import 'package:flickzone/widgets/loadNotifications.dart';
 import 'package:flickzone/widgets/navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:velocity_x/velocity_x.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
@@ -62,7 +66,7 @@ class _NotificationsState extends State<Notifications> {
       appBar: AppBar(
         title: "Notifications".text.make(),
         centerTitle: true,
-        backgroundColor: Vx.gray500,
+        backgroundColor: Colors.pinkAccent,
       ),
       body: SmartRefresher(
         controller: _refreshController,
@@ -114,15 +118,122 @@ class _NotificationsState extends State<Notifications> {
                     );
             }),
       ),
-      floatingActionButton: VxCircle(
-        child: (Icon(
-          Icons.add,
-          color: Vx.white,
-        )),
-        radius: 50,
-        backgroundColor: Vx.lightBlue400,
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.pinkAccent,
+        onPressed: () {
+          Alert(
+            context: context,
+            type: AlertType.info,
+            title: "Create Flicks",
+            desc: "Select Flick Type You Want to Create.",
+            buttons: [
+              DialogButton(
+                child: Text(
+                  "LongFlik",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+                onPressed: () => Navigator.pushNamed(context, "/upload"),
+                color: Color.fromRGBO(0, 179, 134, 1.0),
+              ),
+              DialogButton(
+                child: Text(
+                  "ShortFlik",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+                onPressed: () {
+                  // if (Platform.isAndroid) {
+                  //   _startVideoEditorActivity();
+                  // } else if (Platform.isIOS) {
+                  //   _startIOSVideoEditorActivity();
+                  // } else {
+                  //   _showAlert(context, "Platform is not supported!");
+                  // }
+                  VxToast.show(context, msg: "Under Development");
+                },
+                gradient: LinearGradient(colors: [
+                  Color.fromARGB(116, 116, 191, 1),
+                  Color.fromRGBO(52, 138, 199, 1.0)
+                ]),
+              ),
+              DialogButton(
+                child: Text(
+                  "PostFlik",
+                  style: TextStyle(color: Colors.white, fontSize: 15),
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, "/postcreate");
+                },
+                gradient: LinearGradient(colors: [
+                  Color.fromRGBO(116, 116, 191, 1.0),
+                  Color.fromRGBO(52, 138, 199, 1.0)
+                ]),
+              ),
+            ],
+          ).show();
+        },
+        child: Icon(Icons.add),
       ),
-      bottomNavigationBar: bottomBar(),
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        height: 50.0,
+        alignment: Alignment.center,
+        child: new BottomAppBar(
+          child: new Row(
+            // alignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              // new IconButton(
+              //   icon: Icon(
+              //     Icons.home,
+              //   ),
+              //   onPressed: () {
+              //     Navigator.pushNamed(context, kHomeRoute);
+              //   },
+              // ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, kHomeRoute);
+                },
+                child: new Image.asset(
+                  'assets/icons/home.png',
+                  scale: 2.5,
+                ),
+              ),
+              new IconButton(
+                icon: Icon(
+                  Icons.search,
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, kSearchPage);
+                },
+              ),
+              // new IconButton(
+              //   icon: Icon(
+              //     Icons.add_box,
+              //   ),
+              //   onPressed: null,
+              // ),
+              new SizedBox(),
+              new IconButton(
+                icon: Icon(
+                  Icons.notifications,
+                ),
+                onPressed: () {
+                  // Navigator.pushNamed(context, kNotificationRoute);
+                },
+              ),
+              new IconButton(
+                icon: Icon(
+                  Icons.account_box,
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, kProfileScreen);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
       floatingActionButtonLocation:
           FloatingActionButtonLocation.miniCenterDocked,
     );

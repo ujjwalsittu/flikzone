@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 String kAppName = "Flickzone";
-String kAppUrl = "http://15.207.105.12:4040";
+String kAppUrl = "http://3.109.167.143:4040";
+String kAppUrlHalf = "3.109.167.143:4040";
 String kImageUrl = "https://apiv1.flikzone.com/";
-String twilioSID = "";
-String twilioToken = "";
+String kVideoUrl = "https://apiv1.flikzone.com";
+String twilioSID = "AC77e0042bdbe399eecec9adde871463d3";
+String twilioToken = "d9752e42167c6d474c3805a103828d18";
 String twilioNumber = "+16067555554";
 String otpMessage = "Your OTP To Login is : ";
 String kDefaultPic = "https://cdn.club42.online/upload/photos/d-page.jpg";

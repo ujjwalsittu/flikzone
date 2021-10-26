@@ -7,13 +7,14 @@
  */
 import 'dart:convert';
 
+import 'package:flickzone/constants.dart';
 import 'package:flickzone/models/postModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 
 class PostWebServices extends ChangeNotifier {
   Future<List<PostModel>> loadPosts(int userid) async {
-    var url = Uri.http("15.207.105.12:4040", 'post/user/$userid');
+    var url = Uri.http(kAppUrlHalf, 'post/user/$userid');
     print(url);
     final response = await http.get(url);
     print(url);
@@ -26,6 +27,25 @@ class PostWebServices extends ChangeNotifier {
       final Iterable list = json["data"];
 
       return list.map((item) => PostModel.fromJson(item)).toList();
+    } else {
+      throw Exception("Error Loading Posts");
+    }
+  }
+
+  Future<List<PostOfUser>> loadUserPost(int userid) async {
+    var url = Uri.http(kAppUrlHalf, '/post/posts/$userid');
+    print(url);
+    final response = await http.get(url);
+    print(url);
+    print(await http.get(url));
+    print(response.body);
+    print(response.statusCode);
+
+    if (response.statusCode == 200) {
+      final json = jsonDecode(response.body);
+      final Iterable list = json["data"];
+
+      return list.map((item) => PostOfUser.fromJson(item)).toList();
     } else {
       throw Exception("Error Loading Posts");
     }

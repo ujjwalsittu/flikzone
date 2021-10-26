@@ -3,8 +3,13 @@ import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flickzone/screens/Camera_Uploader.dart';
 import 'package:flickzone/screens/LongVideoScreen.dart';
+import 'package:flickzone/screens/LongVideoUpload.dart';
+import 'package:flickzone/screens/PostUpload.dart';
 import 'package:flickzone/screens/ShortFlick.dart';
+import 'package:flickzone/screens/UploadStory.dart';
+import 'package:flickzone/screens/VideoRecorder.dart';
 import 'package:flickzone/screens/feed_screen.dart';
 import 'package:flickzone/screens/homescreen.dart';
 import 'package:flickzone/screens/login.dart';
@@ -13,10 +18,12 @@ import 'package:flickzone/screens/messages.dart';
 import 'package:flickzone/screens/notifications.dart';
 import 'package:flickzone/screens/profile.dart';
 import 'package:flickzone/screens/profileOther.dart';
+import 'package:flickzone/screens/profileUpdate.dart';
 import 'package:flickzone/screens/search.dart';
 import 'package:flickzone/service_locator.dart';
 import 'package:flickzone/widgets/firsttab.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:splash_screen_view/SplashScreenView.dart';
 
@@ -34,6 +41,8 @@ Future<void> main() async {
   } else {
     await Hive.openBox('OTP');
   }
+  WidgetsFlutterBinding.ensureInitialized();
+  await FlutterDownloader.initialize(debug: true);
 
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -65,13 +74,18 @@ class MyApp extends StatelessWidget {
         "/first": (context) => FirstTab(),
         "/": (context) => SplashScreen(),
         "/short": (context) => ShortFlik(),
-        kOtherProfile: (context) => OtherProfile(),
+        "/updateProfile": (context) => ProfileUpdate(),
         kVideoScreen: (context) => LongVideoScreen(),
         kMessage: (context) => MessageScreen(),
         kHomeRoute: (context) => HomeScreen(),
         kSearchPage: (context) => SearchPage(),
+        "/upload": (context) => LongVideoUpload(),
+        // "/postcreate": (context) => PostUpload(),
+        // "/videorec": (context) => VideoRecorder(),
+        "/picker": (context) => Picker(),
         kNotificationRoute: (context) => Notifications(),
         kProfileScreen: (context) => ProfileScreen(),
+        "/storyupload": (context) => StoryUpload(),
       },
     );
   }

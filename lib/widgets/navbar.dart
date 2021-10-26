@@ -20,13 +20,22 @@ class bottomBar extends StatelessWidget {
           // alignment: MainAxisAlignment.spaceAround,
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: <Widget>[
-            new IconButton(
-              icon: Icon(
-                Icons.home,
-              ),
-              onPressed: () {
+            // new IconButton(
+            //   icon: Icon(
+            //     Icons.home,
+            //   ),
+            //   onPressed: () {
+            //     Navigator.pushNamed(context, kHomeRoute);
+            //   },
+            // ),
+            GestureDetector(
+              onTap: () {
                 Navigator.pushNamed(context, kHomeRoute);
               },
+              child: new Image.asset(
+                'assets/icons/home.png',
+                scale: 2.5,
+              ),
             ),
             new IconButton(
               icon: Icon(

@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void sendOTP(String number, message) async {
-    twilioFlutter?.sendSMS(toNumber: number, messageBody: message);
+    twilioFlutter?.sendSMS(toNumber: "+91" + number, messageBody: message);
   }
 
   Future<void> login(dynamic number) async {
@@ -42,8 +42,7 @@ class _LoginPageState extends State<LoginPage> {
 
     var formData = FormData.fromMap({'phoneNo': num, 'otpVerified': 1});
     try {
-      var response = await dio.post('http://15.207.105.12:4040/user/signup',
-          data: formData);
+      var response = await dio.post('$kAppUrl/user/signup', data: formData);
 
       final result = response.data;
       // String results = jsonDecode(result);
@@ -71,8 +70,8 @@ class _LoginPageState extends State<LoginPage> {
         showLoader = false;
       });
       VxToast.show(context,
-          msg: "Error While Logging In With MSG : ${e.response!.data["msg"]}");
-      print(e.response!.statusCode);
+          msg: "Error While Logging In With MSG : ${e.response?.data["msg"]}");
+      print(e.response?.statusCode);
     }
   }
 
@@ -127,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.phone,
                       onChanged: (value) {
                         setState(() {
-                          phoneNumber = "+91" + value;
+                          phoneNumber = value;
                           print(phoneNumber);
                         });
                       },
@@ -215,7 +214,7 @@ class _LoginPageState extends State<LoginPage> {
                         int temp = box?.get('otp');
                         if (temp.toString() == enteredOTP &&
                             phoneNumber != null) {
-                          phoneNumber = phoneNumber.toString().substring(3, 13);
+                          phoneNumber = phoneNumber.toString();
                           print(phoneNumber);
 
                           await login(phoneNumber);

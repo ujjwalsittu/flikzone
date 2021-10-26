@@ -22,14 +22,19 @@ AppBar buildAppBar() {
     leadingWidth: 250,
     elevation: 0,
     actions: [
-      Image.asset(
-        'assets/icons/home.png',
-        scale: 2.5,
-      ),
-      Image.asset(
-        'assets/icons/video.png',
-        scale: 5.5,
-      ),
+      // Image.asset(
+      //   'assets/icons/home.png',
+      //   scale: 2.5,
+      // ),
+      // GestureDetector(
+      //   onTap: (){
+      //     Navigator.pushNamed(context, kVideoScreen);
+      //   },
+      //   child: Image.asset(
+      //     'assets/icons/video.png',
+      //     scale: 5.5,
+      //   ),
+      // ),
       // Image.asset(
       //   'assets/icons/message.png',
       //   scale: 5.5,

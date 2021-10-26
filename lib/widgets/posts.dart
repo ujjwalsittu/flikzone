@@ -2,10 +2,13 @@ import 'dart:convert';
 import 'dart:math';
 
 import 'package:bottom_sheet/bottom_sheet.dart';
+import 'package:cool_alert/cool_alert.dart';
 import 'package:dio/dio.dart';
 import 'package:flickzone/constants.dart';
 import 'package:flickzone/models/commentModel.dart';
 import 'package:flickzone/models/postModel.dart';
+import 'package:flickzone/screens/LVCommentScreen.dart';
+import 'package:flickzone/screens/profileOther.dart';
 import 'package:flickzone/widgets/CommentWebServices.dart';
 import 'package:flickzone/widgets/postWebServ.dart';
 import 'package:flickzone/widgets/stories.dart';
@@ -42,10 +45,23 @@ class _PostState extends State<Post> {
     _loadposts();
   }
 
+  void sendLike(int uid, int isPostLike, String contentid, int index) async {
+    FormData formData = FormData.fromMap(
+        {"userId": uid, "isPostLike": isPostLike, "contentId": contentid});
+
+    final res =
+        await Dio().post(kAppUrl + "/likesanddislikes/upload", data: formData);
+    setState(() {
+      if (res.statusCode == 200) {
+        _posts![index].isLike = 0;
+      }
+    });
+  }
+
   void profileDetails() async {
     var box = Hive.box('OTP');
     int userid = box.get("userid");
-    var url = Uri.http("15.207.105.12:4040", 'user/$userid');
+    var url = Uri.http(kAppUrlHalf, 'user/$userid');
     var response = await http.get(url);
     dynamic profileResp = jsonDecode(response.body);
     setState(() {
@@ -73,6 +89,31 @@ class _PostState extends State<Post> {
     _refreshController.refreshCompleted();
   }
 
+  void reportPost(int userid, int id) async {
+    Response response;
+    var dio = Dio();
+    FormData formData = FormData.fromMap({'userId': userid, 'contentId': id});
+    response = await dio.post(kAppUrl + "/video/report", data: formData);
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Navigator.of(context).pop();
+      Future.delayed(
+        Duration(seconds: 1),
+      );
+      VxToast.show(context, msg: "Report Sent SuccessFully");
+    }
+  }
+
+  goToProfile(int useriD) {
+    Navigator.pop(context);
+    Navigator.push(
+        context,
+        new MaterialPageRoute(
+            builder: (_) => OtherProfile(
+                  userid: useriD,
+                )));
+  }
+
   @override
   Widget build(BuildContext context) {
     var deviceSize = MediaQuery.of(context).size;
@@ -93,44 +134,90 @@ class _PostState extends State<Post> {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      new Container(
-                        height: 40.0,
-                        width: 40.0,
-                        decoration: new BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: new DecorationImage(
-                              fit: BoxFit.fill,
-                              image: new NetworkImage(
-                                  _posts![index].profilepic.toString())),
+                      GestureDetector(
+                        onTap: () {
+                          goToProfile(_posts![index].userId);
+                        },
+                        child: new Container(
+                          height: 40.0,
+                          width: 40.0,
+                          decoration: new BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: new DecorationImage(
+                                fit: BoxFit.fill,
+                                image: new NetworkImage(
+                                    _posts![index].profilepic.toString())),
+                          ),
                         ),
                       ),
                       new SizedBox(
                         width: 10.0,
                       ),
                       new Text(
-                        _posts![index].username.toString(),
+                        _posts![index].fullName.toString(),
                         style: TextStyle(fontWeight: FontWeight.bold),
                       )
                     ],
                   ),
                   new IconButton(
                     icon: Icon(Icons.more_vert),
-                    onPressed: null,
+                    onPressed: () {
+                      CoolAlert.show(
+                          context: context,
+                          type: CoolAlertType.confirm,
+                          text: "Do You Want To Report This Post",
+                          confirmBtnText: "Yes",
+                          onConfirmBtnTap: () async {
+                            reportPost(myid, _posts![index].id);
+                          },
+                          showCancelBtn: true,
+                          onCancelBtnTap: () {
+                            Navigator.of(context).pop();
+                          });
+                    },
                   )
                 ],
               ),
             ),
-            _posts![index].hasImage == 1
+            _posts![index].postContent == ""
+                ? SizedBox()
+                : Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: new Container(
+                        child: Row(
+                      children: <Widget>[
+                        Flexible(
+                          child: new Text(
+                            _posts![index].postContent.firstLetterUpperCase(),
+                            style: TextStyle(fontSize: 15),
+                          ),
+                        ),
+                      ],
+                    )),
+                  ),
+            _posts![index].hasImage == 1 && _posts![index].postImage != "0"
                 ? Flexible(
                     fit: FlexFit.loose,
                     child: new Image.network(
-                      kAppUrl + "/" + _posts![index].postImage.toString(),
+                      kVideoUrl + '/' + _posts![index].postImage.toString(),
                       fit: BoxFit.cover,
                     ),
                   )
                 : SizedBox(
                     height: 1,
                   ),
+            _posts![index].hasImage == 1 && _posts![index].postVideo != "0"
+                ? Flexible(
+                    fit: FlexFit.loose,
+                    child: new Image.network(
+                      kVideoUrl + '/' + _posts![index].postVideo.toString(),
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : SizedBox(
+                    height: 1,
+                  ),
+
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
@@ -139,8 +226,11 @@ class _PostState extends State<Post> {
                     Icons.favorite,
                     color: Vx.red500,
                   ),
-                  Text(_posts![index].noOfLikes.toString() +
-                      " people liked this")
+                  _posts![index].isLike == 1
+                      ? Text(
+                          "You and ${_posts![index].noOfLikes.toString()} other people liked this")
+                      : Text(
+                          " ${_posts![index].noOfLikes.toString()} people liked this"),
                 ],
               ),
             ),
@@ -160,7 +250,7 @@ class _PostState extends State<Post> {
                 children: <Widget>[
                   // ignore: unnecessary_new
                   new IconButton(
-                    icon: _posts![index].isLiked == 1
+                    icon: _posts![index].isLike == 1
                         // ignore: prefer_const_constructors
                         ? FaIcon(
                             Icons.favorite,
@@ -175,33 +265,21 @@ class _PostState extends State<Post> {
                       var box = Hive.box('OTP');
                       int myidd = box.get('userid');
                       String contentId = _posts![index].id.toString();
-                      setState(() async {
-                        if (_posts![index].isLiked == 1) {
-                          final url =
-                              "http://15.207.105.12:4040/likesanddislikes/delete/" +
-                                  contentId +
-                                  "/" +
-                                  myid.toString();
-                          print(url);
-                          Dio().delete(url);
-                        } else {
-                          try {
-                            print(myidd);
-                            FormData formData = FormData.fromMap({
-                              "userId": _myid,
-                              "isPostLike": 1,
-                              "contentId": contentId
-                            });
-                            final res = await Dio().post(
-                                "http://15.207.105.12:4040/likesanddislikes/upload",
-                                data: formData);
-                            print(res.data);
-                            print("Likes Working");
-                          } on DioError catch (e) {
-                            print(e.response!.statusCode);
-                          }
-                        }
-                      });
+
+                      if (_posts![index].isLike == 1) {
+                        final url = kAppUrl +
+                            "/likesanddislikes/delete/" +
+                            contentId +
+                            "/" +
+                            myid.toString();
+                        setState(() {
+                          _posts![index].isLike = 0;
+                        });
+                        print(url);
+                        Dio().delete(url);
+                      } else {
+                        sendLike(_myid, 1, contentId, index);
+                      }
                     },
                   ),
                   // ignore: unnecessary_new
@@ -211,37 +289,13 @@ class _PostState extends State<Post> {
                   ),
                   GestureDetector(
                     onTap: () async {
-                      String _comment;
-                      List<CommentModel> _comments = <CommentModel>[];
-                      final resp = await CommentWebServices()
-                          .loadComment(_posts![index].id!);
-                      setState(() {
-                        _comments = resp;
-                      });
-                      showModalBottomSheet(
-                          context: context,
-                          builder: (BuildContext context) {
-                            // return FutureBuilder<CommentModel>(
-                            //     builder: (context, snapshot) {
-                            return ListView.builder(
-                                itemCount: _comments.length,
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                      leading: Image.network(kDefaultPic),
-                                      title: Text(_comments[index].content),
-                                      subtitle: Text(
-                                        DateTime.parse(_comments[index]
-                                                .createdOn
-                                                .toString())
-                                            .timeAgo(
-                                                enableFromNow: true,
-                                                useShortForm: false)
-                                            .firstLetterUpperCase(),
-                                        style: TextStyle(color: Colors.grey),
-                                      ));
-                                });
-                          });
-                      // });
+                      Navigator.push(
+                        context,
+                        new MaterialPageRoute(
+                          builder: (_) =>
+                              LVComment("0", _posts![index].id.toString(), "0"),
+                        ),
+                      );
                     },
                     child: const Icon(
                       FontAwesomeIcons.comment,
@@ -266,74 +320,73 @@ class _PostState extends State<Post> {
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 16.0, 0.0, 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  new Container(
-                    height: 40.0,
-                    width: 40.0,
-                    decoration: new BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: new DecorationImage(
-                        fit: BoxFit.fill,
-                        image: new NetworkImage(
-                            _posts![index].profilepic.toString()),
-                      ),
-                    ),
-                  ),
-                  new SizedBox(
-                    width: 10.0,
-                  ),
-                  Expanded(
-                    child: new TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          _comment = value;
-                        });
-                      },
-                      controller: textEditingController,
-                      decoration: new InputDecoration(
-                        border: InputBorder.none,
-                        enabled: true,
-                        hintText: "Add a comment...",
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      var box = Hive.box('OTP');
-                      print(_myid);
-                      if (_comment == " " || _comment.isEmptyOrNull) {
-                        VxToast.show(context,
-                            msg: "Empty Comment Will Not Be Sent");
-                      } else {
-                        FormData formData = FormData.fromMap({
-                          "content": _comment,
-                          "postId": _posts![index].id,
-                          "userId": _myid
-                        });
-                        print(_myid);
-                        final resp = await Dio().post(
-                            "http://15.207.105.12:4040/comment/upload",
-                            data: formData);
-
-                        if (resp.statusCode == 200) {
-                          VxToast.show(context, msg: "Comment Posted");
-                          print(resp.data);
-                          textEditingController.clear();
-                        }
-                      }
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(Icons.send),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.fromLTRB(16.0, 16.0, 0.0, 8.0),
+            //   child: Row(
+            //     mainAxisAlignment: MainAxisAlignment.start,
+            //     children: <Widget>[
+            //       // new Container(
+            //       //   height: 40.0,
+            //       //   width: 40.0,
+            //       //   decoration: new BoxDecoration(
+            //       //     shape: BoxShape.circle,
+            //       //     image: new DecorationImage(
+            //       //       fit: BoxFit.fill,
+            //       //       image: new NetworkImage(
+            //       //           _posts![index].profilepic.toString()),
+            //       //     ),
+            //       //   ),
+            //       // ),
+            //       // new SizedBox(
+            //       //   width: 10.0,
+            //       // ),
+            //       // Expanded(
+            //       //   child: new TextField(
+            //       //     onChanged: (value) {
+            //       //       setState(() {
+            //       //         _comment = value;
+            //       //       });
+            //       //     },
+            //       //     controller: textEditingController,
+            //       //     decoration: new InputDecoration(
+            //       //       border: InputBorder.none,
+            //       //       enabled: true,
+            //       //       hintText: "Add a comment...",
+            //       //     ),
+            //       //   ),
+            //       // ),
+            //       // GestureDetector(
+            //       //   onTap: () async {
+            //       //     var box = Hive.box('OTP');
+            //       //     print(_myid);
+            //       //     if (_comment == " " || _comment.isEmptyOrNull) {
+            //       //       VxToast.show(context,
+            //       //           msg: "Empty Comment Will Not Be Sent");
+            //       //     } else {
+            //       //       FormData formData = FormData.fromMap({
+            //       //         "content": _comment,
+            //       //         "postId": _posts![index].id,
+            //       //         "userId": _myid
+            //       //       });
+            //       //       print(_myid);
+            //       //       final resp = await Dio()
+            //       //           .post(kAppUrl + "/comment/upload", data: formData);
+            //       //
+            //       //       if (resp.statusCode == 200) {
+            //       //         VxToast.show(context, msg: "Comment Posted");
+            //       //         print(resp.data);
+            //       //         textEditingController.clear();
+            //       //       }
+            //       //     }
+            //       //   },
+            //       //   child: Padding(
+            //       //     padding: const EdgeInsets.all(8.0),
+            //       //     child: Icon(Icons.send),
+            //       //   ),
+            //       // ),
+            //     ],
+            //   ),
+            // ),
             SizedBox(
               child: VxContinuousRectangle(
                 height: 10,

@@ -58,223 +58,233 @@ class _ShortFlikState extends State<ShortFlik> {
   void dispose() {
     // Clean up the controller when the widget is removed from the
     // widget tree.
-    loadShortVideos();
+
     _textController.dispose();
     super.dispose();
+    loadShortVideos();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: TikTokStyleFullPageScroller(
-        contentSize: tiktuk.length,
-        swipePositionThreshold: 0.2,
-        // swipeThreshold: 0.2,
-        // ^ the fraction of the screen needed to scroll
-        swipeVelocityThreshold: 2000,
-        // ^ the velocity threshold for smaller scrolls
-        animationDuration: const Duration(milliseconds: 300),
-        // ^ how long the animation will take
-        builder: (BuildContext context, index) {
-          return tiktuk.length == 0
-              ? Container(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                )
-              : Stack(
-                  children: <Widget>[
-                    TikTokVideoPlayer(url: kImageUrl + tiktuk[index].videoUrl),
-                    title(),
-                    // RightItems(
-                    //   comments: ,
-                    //   userImg: kImageUrl + tiktuk[index].musicThumbNailUrl,
-                    //   coverImg: ,
-                    //   noOfLikes: tiktuk[index].noOfLikes.toString(),
-                    // ),
-                    Align(
-                      alignment: Alignment.bottomRight,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: <Widget>[
-                          Container(
-                            height: 50.0,
-                            width: 50.0,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                              image: DecorationImage(
-                                image: NetworkImage(kImageUrl +
-                                    tiktuk[index].musicThumbNailUrl),
-                                fit: BoxFit.cover,
+      body: SafeArea(
+        child: TikTokStyleFullPageScroller(
+          contentSize: tiktuk.length,
+          swipePositionThreshold: 5,
+          onScrollEvent: (ScrollEventType type, {int? currentIndex}) {
+            print(
+                "Scroll callback received with data: {type: $type, and index: ${currentIndex ?? 'not given'}}");
+          },
+
+          // swipeThreshold: 0.2,
+          // ^ the fraction of the screen needed to scroll
+          swipeVelocityThreshold: 2000,
+          // ^ the velocity threshold for smaller scrolls
+          animationDuration: const Duration(milliseconds: 100),
+          // ^ how long the animation will take
+          builder: (BuildContext context, index) {
+            return tiktuk.length == 0
+                ? Container(
+                    child: Center(
+                      child: CircularProgressIndicator(),
+                    ),
+                  )
+                : Stack(
+                    children: <Widget>[
+                      TikTokVideoPlayer(
+                          url: kImageUrl + tiktuk[index].videoUrl),
+                      title(),
+                      // RightItems(
+                      //   comments: ,
+                      //   userImg: kImageUrl + tiktuk[index].musicThumbNailUrl,
+                      //   coverImg: ,
+                      //   noOfLikes: tiktuk[index].noOfLikes.toString(),
+                      // ),
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: <Widget>[
+                            Container(
+                              height: 50.0,
+                              width: 50.0,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  image: NetworkImage(kImageUrl +
+                                      tiktuk[index].musicThumbNailUrl),
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: 12.0),
-                          GestureDetector(
-                            onTap: () {
-                              var box = Hive.box('OTP');
-                              int myid = box.get("userid");
-                              FormData formData = FormData.fromMap({
-                                "userID": myid,
-                                "isPostLike": 1,
-                                "contentId": tiktuk[index].id
-                              });
-                              try {
-                                var response = Dio().post(
-                                    "http://15.207.105.12:4040/likesanddislikes/upload",
-                                    data: formData);
-                                // print(response!.data);
-                                print("Likes Working");
-                              } on DioError catch (e) {
-                                print(e.response!.statusCode);
-                              }
-                            },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(Icons.favorite,
-                                    color: fav == Colors.white
-                                        ? Colors.red
-                                        : Colors.white,
-                                    size: 40.0),
-                                SizedBox(height: 5.0),
-                                Text(
-                                  tiktuk[index].noOfLikes.toString(),
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                SizedBox(height: 10.0)
-                              ],
+                            SizedBox(height: 12.0),
+                            GestureDetector(
+                              onTap: () {
+                                var box = Hive.box('OTP');
+                                int myid = box.get("userid");
+                                FormData formData = FormData.fromMap({
+                                  "userID": myid,
+                                  "isPostLike": 1,
+                                  "contentId": tiktuk[index].id
+                                });
+                                try {
+                                  var response = Dio().post(
+                                      "http://3.109.150.228:4040/likesanddislikes/upload",
+                                      data: formData);
+                                  // print(response!.data);
+                                  print("Likes Working");
+                                } on DioError catch (e) {
+                                  print(e.response!.statusCode);
+                                }
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Icon(Icons.favorite,
+                                      color: fav == Colors.white
+                                          ? Colors.red
+                                          : Colors.white,
+                                      size: 40.0),
+                                  SizedBox(height: 5.0),
+                                  Text(
+                                    tiktuk[index].noOfLikes.toString(),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  SizedBox(height: 10.0)
+                                ],
+                              ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              String _comment;
-                              List<CommentModel> _comments = <CommentModel>[];
-                              final resp = await CommentWebServices()
-                                  .loadComment(tiktuk[index].id);
-                              setState(() {
-                                _comments = resp;
-                              });
-                              showStickyFlexibleBottomSheet(
-                                context: context,
-                                headerBuilder:
-                                    (BuildContext context, double offset) {
-                                  return Container(
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: new TextField(
-                                            onChanged: (value) {
-                                              setState(() {
-                                                _comment = value;
-                                              });
-                                            },
-                                            controller: _textController,
-                                            decoration: new InputDecoration(
-                                              border: InputBorder.none,
-                                              enabled: true,
-                                              hintText: "Add a comment...",
+                            GestureDetector(
+                              onTap: () async {
+                                String _comment;
+                                List<CommentModel> _comments = <CommentModel>[];
+                                final resp = await CommentWebServices()
+                                    .loadComment(tiktuk[index].id);
+                                setState(() {
+                                  _comments = resp;
+                                });
+                                showStickyFlexibleBottomSheet(
+                                  context: context,
+                                  headerBuilder:
+                                      (BuildContext context, double offset) {
+                                    return Container(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            child: new TextField(
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  _comment = value;
+                                                });
+                                              },
+                                              controller: _textController,
+                                              decoration: new InputDecoration(
+                                                border: InputBorder.none,
+                                                enabled: true,
+                                                hintText: "Add a comment...",
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                        Icon(Icons.send),
-                                      ],
-                                    ),
-                                  );
-                                },
-                                builder: ((BuildContext context, index) {
-                                  return SliverChildListDelegate([
-                                    ListView.builder(
-                                        itemCount: _comments.length,
-                                        itemBuilder: (context, index) {
-                                          return ListTile(
-                                            leading: Image.network(kDefaultPic),
-                                            title:
-                                                Text(_comments[index].content),
-                                            subtitle: Text(
-                                              DateTime.parse(_comments[index]
-                                                      .createdOn
-                                                      .toString())
-                                                  .timeAgo(
-                                                      enableFromNow: true,
-                                                      useShortForm: false)
-                                                  .firstLetterUpperCase(),
-                                              style:
-                                                  TextStyle(color: Colors.grey),
-                                            ),
-                                          );
-                                        }),
-                                  ]);
-                                }),
-                              );
-                            },
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Icon(Icons.comment,
-                                    color: Colors.white, size: 40.0),
-                                SizedBox(height: 5.0),
-                                Text(
-                                  tiktuk[index].noOfLikes.toString(),
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                                SizedBox(height: 10.0)
-                              ],
+                                          Icon(Icons.send),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  builder: ((BuildContext context, index) {
+                                    return SliverChildListDelegate([
+                                      ListView.builder(
+                                          itemCount: _comments.length,
+                                          itemBuilder: (context, index) {
+                                            return ListTile(
+                                              leading:
+                                                  Image.network(kDefaultPic),
+                                              title: Text(
+                                                  _comments[index].content),
+                                              subtitle: Text(
+                                                DateTime.parse(_comments[index]
+                                                        .createdOn
+                                                        .toString())
+                                                    .timeAgo(
+                                                        enableFromNow: true,
+                                                        useShortForm: false)
+                                                    .firstLetterUpperCase(),
+                                                style: TextStyle(
+                                                    color: Colors.grey),
+                                              ),
+                                            );
+                                          }),
+                                    ]);
+                                  }),
+                                );
+                              },
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Icon(Icons.comment,
+                                      color: Colors.white, size: 40.0),
+                                  SizedBox(height: 5.0),
+                                  Text(
+                                    tiktuk[index].noOfLikes.toString(),
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  SizedBox(height: 10.0)
+                                ],
+                              ),
                             ),
-                          ),
-                          GestureDetector(
-                            onTap: () {},
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: <Widget>[
-                                Image.asset(
-                                  "assets/images/flick.png",
-                                  color: Colors.white,
-                                  scale: 2,
-                                ),
-                                SizedBox(height: 5.0),
-                                SizedBox(height: 10.0)
-                              ],
+                            GestureDetector(
+                              onTap: () {},
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Image.asset(
+                                    "assets/images/flick.png",
+                                    color: Colors.white,
+                                    scale: 2,
+                                  ),
+                                  SizedBox(height: 5.0),
+                                  SizedBox(height: 10.0)
+                                ],
+                              ),
                             ),
-                          ),
-                          SizedBox(height: 40.0),
-                          Container(
-                            height: 60.0,
-                            width: 60.0,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                            ),
-                            child: AvatarGlow(
-                              glowColor: Colors.black,
-                              endRadius: 35.0,
-                              child: Container(
-                                width: 30.0,
-                                height: 30.0,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  image: DecorationImage(
-                                      image: NetworkImage(kImageUrl +
-                                          tiktuk[index]
-                                              .musicThumbNailUrl
-                                              .toString()),
-                                      fit: BoxFit.cover),
+                            SizedBox(height: 40.0),
+                            Container(
+                              height: 60.0,
+                              width: 60.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                              ),
+                              child: AvatarGlow(
+                                glowColor: Colors.black,
+                                endRadius: 35.0,
+                                child: Container(
+                                  width: 30.0,
+                                  height: 30.0,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    image: DecorationImage(
+                                        image: NetworkImage(kImageUrl +
+                                            tiktuk[index]
+                                                .musicThumbNailUrl
+                                                .toString()),
+                                        fit: BoxFit.cover),
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    LeftItems(
-                      description: tiktuk[index].descrition,
-                      musicName: tiktuk[index].musicId.toString(),
-                      authorName: tiktuk[index].userId.toString(),
-                      userName: tiktuk[index].userId.toString(),
-                    )
-                  ],
-                );
-        },
+                      LeftItems(
+                        description: tiktuk[index].descrition,
+                        musicName: tiktuk[index].musicId.toString(),
+                        authorName: tiktuk[index].userId.toString(),
+                        userName: tiktuk[index].userId.toString(),
+                      )
+                    ],
+                  );
+          },
+        ),
       ),
     );
   }
